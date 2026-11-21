@@ -7,6 +7,9 @@ import interviewRoutes from './routes/interviews.js';
 
 const app = express();
 
+// Fix Render proxy configuration
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 app.use(cors({

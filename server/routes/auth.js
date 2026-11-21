@@ -78,17 +78,21 @@ router.post('/signup', signupLimiter, async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email and password are required' });
     }
+
     if (name.length < 2 || name.length > 50) {
       return res.status(400).json({ error: 'Name must be between 2 and 50 characters' });
     }
+
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'Please enter a valid email address' });
     }
+
     if (password.length < 6 || password.length > 128) {
       return res.status(400).json({ error: 'Password must be between 6 and 128 characters' });
     }
 
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
@@ -103,6 +107,7 @@ router.post('/signup', signupLimiter, async (req, res) => {
     if (error.code === 11000) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
+
     return res.status(500).json({ error: 'Could not create account' });
   }
 });
@@ -123,21 +128,25 @@ router.post('/login', loginLimiter, async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
+
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'Please enter a valid email address' });
     }
 
     const user = await User.findOne({ email }).select('+password_hash');
+
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
+
     if (!passwordMatches) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const token = createToken(user._id.toString());
+
     return res.json({ token, user: user.toJSON() });
   } catch (error) {
     return res.status(500).json({ error: 'Could not log in' });
@@ -169,11 +178,15 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 
       user.resetTokenHash = resetTokenHash;
       user.resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
       await user.save();
 
       try {
         await sendPasswordResetEmail(user.email, resetToken);
-      } catch {
+      } catch (error) {
+        // Log the email failure so we can diagnose it in Render.
+        console.error('Password reset email failed:', error.message);
+
         await User.updateOne(
           { _id: user._id, resetTokenHash },
           { $unset: { resetTokenHash: '', resetTokenExpiresAt: '' } }
@@ -196,6 +209,7 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
     if (typeof req.body.token !== 'string' || !req.body.token.trim()) {
       return res.status(400).json({ error: 'This password reset link is invalid or has expired' });
     }
+
     if (!isValidPassword(req.body.password)) {
       return res.status(400).json({ error: 'Password must be between 6 and 128 characters' });
     }
@@ -230,9 +244,11 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
     return res.json({ user });
   } catch (error) {
     return res.status(500).json({ error: 'Could not load profile' });

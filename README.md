@@ -339,3 +339,14 @@ The token expires after 15 minutes and cannot be reused after a successful reset
 InterviewPrep was developed as a full-stack university project to help users prepare for job interviews through structured practice, timed simulations, and progress tracking.
 
 The application demonstrates frontend development with React, backend REST API development with Express, database integration with MongoDB, JWT authentication, third-party email API integration, automated testing, and cloud deployment.
+
+## Milestone Summary
+
+| Milestone | Deliverable | Git Reference | Status |
+| --- | --- | --- | --- |
+| Milestone 1 | Project scaffold, wireframes and database schema | `7e1a887` | Completed |
+| Milestone 2 | Backend authentication and CRUD routes | `7e1a887` | Completed |
+| Milestone 3 | Frontend integration and core user-facing features | `7e1a887`, `c9d09d9` | Completed |
+| Milestone 4 | Public deployment and production database | `62ffade`, `c9d09d9`, `cbf9d95` | Completed |
+
+The first three milestones were included in the initial repository commit. Subsequent commits document deployment fixes, Brevo email integration, documentation updates, and frontend testing improvements.
